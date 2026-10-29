@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Bank Management System — PL/SQL Project Lab Studio</title>
+  <meta name="description" content="Complete enterprise Oracle PL/SQL and MySQL project for Blood Bank Management System managing donors, blood groups, stock inventory, and blood requests.">
+  <link rel="stylesheet" href="visualizer.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩸</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation & Brand Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🩸</div>
+      <div class="brand-title">
+        <h1>Blood Bank Management System</h1>
+        <p>Advanced PL/SQL Database Project · Oracle 19c/21c & MySQL 9.x</p>
+      </div>
+      <span class="badge-tag oracle">Oracle PL/SQL</span>
+      <span class="badge-tag mysql">MySQL 9.x Verified</span>
+    </div>
+
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-stock" id="btnTabStock">📊 Live Stock</button>
+      <button class="tab-btn" data-tab="tab-procedures" id="btnTabProcedures">⚡ PL/SQL Studio</button>
+      <button class="tab-btn" data-tab="tab-donors" id="btnTabDonors">👥 Donors</button>
+      <button class="tab-btn" data-tab="tab-requests" id="btnTabRequests">🚨 Requests</button>
+      <button class="tab-btn" data-tab="tab-compat" id="btnTabCompat">🧬 Compatibility</button>
+      <button class="tab-btn" data-tab="tab-audit" id="btnTabAudit">📜 Audit Log</button>
+      <button class="tab-btn" data-tab="tab-code" id="btnTabCode">💻 PL/SQL Code</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Top System Metrics Ribbon -->
+    <section class="metrics-ribbon" aria-label="System Metrics">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Total Blood Units</span>
+          <span class="metric-icon">🩸</span>
+        </div>
+        <div class="metric-value" id="metricTotalStock">--</div>
+        <div class="metric-sub">Across all 8 ABO/Rh groups</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Active Voluntary Donors</span>
+          <span class="metric-icon">👥</span>
+        </div>
+        <div class="metric-value" id="metricActiveDonors">--</div>
+        <div class="metric-sub">Registered with biometrics</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Open Blood Requests</span>
+          <span class="metric-icon">🚨</span>
+        </div>
+        <div class="metric-value" id="metricPendingRequests">--</div>
+        <div class="metric-sub">Triage queue awaiting dispatch</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">Critical Alert Groups</span>
+          <span class="metric-icon">⚠️</span>
+        </div>
+        <div class="metric-value" id="metricCriticalGroups" style="color: var(--crimson-500)">--</div>
+        <div class="metric-sub">Units &le; critical threshold</div>
+      </div>
+    </section>
+
+    <!-- TAB 1: LIVE STOCK INVENTORY -->
+    <section id="tab-stock" class="tab-panel active">
+      <div class="section-title">
+        <h2><span>🩸</span> Real-Time Blood Stock Inventory (blood_stock)</h2>
+        <div>
+          <button class="btn-secondary" onclick="executeStockReport()">
+            <span>📋 Run sp_stock_inventory_report</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 8 Blood Group Cards -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Terminal Output Container -->
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="terminal-title">SQL*Plus / DBMS_OUTPUT Interactive Terminal Console</span>
+          <button class="btn-secondary" style="padding:0.2rem 0.6rem; font-size:0.7rem" onclick="clearTerminal()">Clear</button>
+        </div>
+        <div class="terminal-body" id="terminalOutput">
+          <!-- Live DBMS_OUTPUT lines will appear here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PL/SQL PROCEDURE STUDIO -->
+    <section id="tab-procedures" class="tab-panel">
+      <div class="section-title">
+        <h2><span>⚡</span> PL/SQL Stored Procedure Execution Studio</h2>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Procedure 1: Register Donor -->
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <h3><span>📝</span> EXEC sp_register_donor</h3>
+            <span class="badge-tag oracle">Trigger Validated</span>
+          </div>
+          <form onsubmit="event.preventDefault(); executeRegisterDonor();">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regFirstName">First Name</label>
+                <input type="text" id="regFirstName" class="form-input" value="Siddharth" required>
+              </div>
+              <div class="form-group">
+                <label for="regLastName">Last Name</label>
+                <input type="text" id="regLastName" class="form-input" value="Narang" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regEmail">Email Address</label>
+                <input type="email" id="regEmail" class="form-input" value="siddharth.n@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="regPhone">Phone Number</label>
+                <input type="tel" id="regPhone" class="form-input" value="9876543210" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regDob">Date of Birth (Age &ge; 18)</label>
+                <input type="date" id="regDob" class="form-input" value="2000-06-15" required>
+              </div>
+              <div class="form-group">
+                <label for="regWeight">Weight (kg &ge; 45.0)</label>
+                <input type="number" id="regWeight" class="form-input" value="68.0" step="0.5" required>
+              </div>
+              <div class="form-group">
+                <label for="regGender">Gender</label>
+                <select id="regGender" class="form-select">
+                  <option value="M">Male (M)</option>
+                  <option value="F">Female (F)</option>
+                  <option value="O">Other (O)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regBloodGroup">Blood Group</label>
+                <select id="regBloodGroup" class="form-select">
+                  <option value="O+">O+</option>
+                  <option value="O-">O- (Universal)</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regCity">City</label>
+                <input type="text" id="regCity" class="form-input" value="Ludhiana" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regAddress">Address / Locality</label>
+              <input type="text" id="regAddress" class="form-input" value="Model Gram, Link Road">
+            </div>
+
+            <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+              <button type="submit" class="btn-primary" id="btnSubmitRegister">
+                <span>⚡ Execute sp_register_donor</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="document.getElementById('regDob').value='2015-01-01'; executeRegisterDonor();">
+                <span>⚠️ Test Underage Trigger (<18)</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Procedure 2: Record Donation & Fulfill Request -->
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+          <!-- Record Donation -->
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h3><span>💉</span> EXEC sp_record_donation</h3>
+              <span class="badge-tag oracle">90-Day Cooldown Guard</span>
+            </div>
+            <form onsubmit="event.preventDefault(); executeRecordDonation();">
+              <div class="form-group">
+                <label for="donationDonorSelect">Select Registered Donor</label>
+                <select id="donationDonorSelect" class="form-select">
+                  <!-- Injected via JavaScript -->
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="donationUnits">Units Donated</label>
+                  <input type="number" id="donationUnits" class="form-input" value="1" min="1" max="2" required>
+                </div>
+                <div class="form-group">
+                  <label for="donationHb">Hemoglobin (g/dL)</label>
+                  <input type="number" id="donationHb" class="form-input" value="14.5" step="0.1" required>
+                </div>
+                <div class="form-group">
+                  <label for="donationCamp">Camp / Facility</label>
+                  <input type="text" id="donationCamp" class="form-input" value="Central Blood Bank">
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btnSubmitDonation">
+                <span>⚡ Execute sp_record_donation (Increments Stock)</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Fulfill Request -->
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h3><span>📦</span> EXEC sp_process_blood_request ('FULFILL')</h3>
+              <span class="badge-tag oracle">Row Locking & Decrement</span>
+            </div>
+            <div class="form-group">
+              <label for="fulfillRequestSelect">Select Pending Blood Request</label>
+              <select id="fulfillRequestSelect" class="form-select">
+                <!-- Injected via JavaScript -->
+              </select>
+            </div>
+            <button type="button" class="btn-primary" onclick="executeFulfillRequest()" id="btnSubmitFulfill">
+              <span>⚡ Execute sp_process_blood_request (Dispense & Fulfill)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: DONORS -->
+    <section id="tab-donors" class="tab-panel">
+      <div class="section-title">
+        <h2><span>👥</span> Registered Voluntary Donors Registry (donors table)</h2>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table" aria-label="Donors Table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Blood Group</th>
+              <th>Age / Sex</th>
+              <th>Weight</th>
+              <th>City</th>
+              <th>Phone</th>
+              <th>Last Donated</th>
+              <th>Clinical Eligibility</th>
+            </tr>
+          </thead>
+          <tbody id="donorsTableBody">
+            <!-- Injected via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: BLOOD REQUESTS -->
+    <section id="tab-requests" class="tab-panel">
+      <div class="section-title">
+        <h2><span>🚨</span> Emergency Blood Requests & Triage Queue (blood_requests)</h2>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table" aria-label="Blood Requests Table">
+          <thead>
+            <tr>
+              <th>Req #</th>
+              <th>Patient</th>
+              <th>Hospital</th>
+              <th>Group</th>
+              <th>Units</th>
+              <th>Urgency</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="requestsTableBody">
+            <!-- Injected via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: COMPATIBILITY MATRIX -->
+    <section id="tab-compat" class="tab-panel">
+      <div class="section-title">
+        <h2><span>🧬</span> Biological Blood Compatibility Matrix (blood_compatibility)</h2>
+      </div>
+      <div class="card-panel" style="margin-bottom:1.5rem;">
+        <div class="form-group" style="max-width:350px;">
+          <label for="compatRecipientSelect">Select Recipient / Patient Blood Group:</label>
+          <select id="compatRecipientSelect" class="form-select" onchange="updateCompatibilityInspector()">
+            <option value="O-">O- (Universal Red Cell Donor)</option>
+            <option value="O+">O+</option>
+            <option value="A-">A-</option>
+            <option value="A+">A+</option>
+            <option value="B-">B-</option>
+            <option value="B+">B+</option>
+            <option value="AB-">AB-</option>
+            <option value="AB+" selected>AB+ (Universal Red Cell Recipient)</option>
+          </select>
+        </div>
+        <div id="compatResultBox">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: AUDIT LOG -->
+    <section id="tab-audit" class="tab-panel">
+      <div class="section-title">
+        <h2><span>📜</span> Autonomous System Audit Trail (audit_log table)</h2>
+      </div>
+      <div class="data-table-container">
+        <table class="data-table" aria-label="Audit Log Table">
+          <thead>
+            <tr>
+              <th>Log #</th>
+              <th>Target Table</th>
+              <th>Action Type</th>
+              <th>Record ID</th>
+              <th>Details / Diff Payload</th>
+              <th>Timestamp</th>
+              <th>Logged By</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Injected via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 7: PL/SQL SOURCE CODE -->
+    <section id="tab-code" class="tab-panel">
+      <div class="section-title">
+        <h2><span>💻</span> Modular PL/SQL Source Code Explorer</h2>
+      </div>
+
+      <div class="code-viewer-container">
+        <div class="code-nav" role="tablist">
+          <button class="code-tab active" data-file="01_schema_ddl.sql">01_schema_ddl.sql</button>
+          <button class="code-tab" data-file="02_functions.sql">02_functions.sql</button>
+          <button class="code-tab" data-file="03_procedures.sql">03_procedures.sql</button>
+          <button class="code-tab" data-file="04_triggers.sql">04_triggers.sql</button>
+          <button class="code-tab" data-file="05_packages.sql">05_packages.sql</button>
+          <button class="code-tab" data-file="06_test_execution_suite.sql">06_test_execution_suite.sql</button>
+          <button class="code-tab" data-file="07_plsql_queries_and_views.sql">07_plsql_queries_and_views.sql</button>
+          <button class="code-tab" data-file="00_full_all_in_one.sql">00_full_all_in_one.sql</button>
+          <button class="code-tab" data-file="bloodbank_mysql_routines.sql">MySQL 9.x Routines</button>
+        </div>
+
+        <div class="code-content-wrapper">
+          <button class="copy-btn" onclick="copyActiveCode()">
+            <span>📋 Copy Code</span>
+          </button>
+          <pre class="code-pre" id="codeDisplay">Loading 01_schema_ddl.sql...</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Blood Bank Management System · Advanced PL/SQL Project (Donors, Blood Groups, Blood Stock, Requests) · Built for Oracle 19c/21c & MySQL 9.x</p>
+  </footer>
+
+  <script src="visualizer.js"></script>
+</body>
+</html>
